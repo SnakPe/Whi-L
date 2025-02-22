@@ -28,31 +28,31 @@ Whi-l --help
 Formal Grammar
 ---
 The while language has the following grammar
-"$\left<\mathrm{INDENT}\right>$ A" means that every new statement in A needs to have an added tab character  
+$\left<\mathrm{INDENT}\right>$ A means that every new statement in A needs to have an added tab character  
 \n stands for a new line
 
 Program $\to$ Statement (; Statement)*
 IndentedProgram $\to$ $\left<\mathrm{INDENT}\right>$ Program 
 
-Statement $\to$ While | If | Ass | Skip
-While $\to$ while Boolean do \n IndentedProgram 
-If $\to$ if Boolean then \n IndentedProgram \n else \n IndentedProgram 
-Ass $\to$ Variable := Expression
+Statement $\to$ While | If | Ass | Skip </br>
+While $\to$ while Boolean do \n IndentedProgram </br>
+If $\to$ if Boolean then \n IndentedProgram \n else \n IndentedProgram </br>
+Ass $\to$ Variable := Expression </br>
 Skip $\to$ skip
 
 Expression $\to$ Boolean | Arithmetic | Variable
 
-Boolean $\to$ true | false | Variable | Not | And | Or | Bigger | Smaller | Equals | ( Boolean )
-Not $\to$ ! Boolean
-And $\to$ Boolean & Boolean
-Or $\to$ Boolean | Boolean
-Bigger $\to$ Arithmetic > Arithmetic
-Smaller $\to$ Arithmetic < Arithmetic
+Boolean $\to$ true | false | Variable | Not | And | Or | Bigger | Smaller | Equals | ( Boolean ) </br>
+Not $\to$ ! Boolean </br>
+And $\to$ Boolean & Boolean </br>
+Or $\to$ Boolean | Boolean </br>
+Bigger $\to$ Arithmetic > Arithmetic </br>
+Smaller $\to$ Arithmetic < Arithmetic </br>
 Equals $\to$ Arithmetic = Arithmetic
 
-Arithmetic $\to$ Number | Variable | Plus | Minus | (Arithmetic)
-Plus $\to$ Arithmetic + Arithmetic
-Minus $\to$ Arithmetic - Arithmetic
+Arithmetic $\to$ Number | Variable | Plus | Minus | (Arithmetic) </br>
+Plus $\to$ Arithmetic + Arithmetic </br>
+Minus $\to$ Arithmetic - Arithmetic </br>
 Number $\to$ [0-9]+
 
 Variables $\to$ ([a-z] | [A-Z])([a-z] | [A-Z] | [0-9])*
