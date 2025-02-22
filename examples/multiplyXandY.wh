@@ -1,0 +1,12 @@
+-- mulitplies the numbers in the variables x and y, and saves the result in the variable xTimesY
+x := 7;
+y := -6;
+xTimesY := 0;
+while !x = 0 do
+	skip;
+	if x > 0 then
+		xTimesY := xTimesY + y;
+		x := x - 1
+	else
+		xTimesY := xTimesY - y;
+		x := x + 1

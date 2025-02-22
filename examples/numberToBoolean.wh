@@ -1,0 +1,3 @@
+-- Converts a number to a bool c-style (0 is false, everything else is true)
+number := -1;
+bool   := !number = 0
