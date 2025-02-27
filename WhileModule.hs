@@ -506,9 +506,20 @@ parseProgram  w = parseSemicolon w >>= return.snd where
         (Right (len1, expr1), Right (len2, Nothing)) -> Right (len1, expr1)
         (Right (len1, expr1), Right (len2, Just expr2)) -> Right (len1 + 1 + len2, (NEW expr1 expr2))
   parseSemicolonLoop :: Whileparser (Maybe While)
-  parseSemicolonLoop []            = Right (0,Nothing)
-  parseSemicolonLoop (Semicolon:[])   = Left  ("Error: Found semicolon at the end of a (sub-)program")
-  parseSemicolonLoop (Semicolon:NewLine:toks) = parseSemicolon toks >>= (\(len, exp) -> return (len+1, Just exp))
+  parseSemicolonLoop []                       = Right (0,Nothing)
+  parseSemicolonLoop (Semicolon:[])           = Left $ "Error: Found semicolon at the end of a (sub-)program"
+  parseSemicolonLoop (Semicolon:NewLine:toks) = do
+    (len, afterWhitespace) <- ignoreWhitespace (NewLine:toks)
+    (len, exp) <- parseSemicolon afterWhitespace
+    return (len+1, Just exp) where
+      -- skips over whitespace, but doesn't allow the next command to be wrongly indented
+      ignoreWhitespace :: Whileparser [WhileToken]
+      ignoreWhitespace (NewLine:Indent :rest         ) = ignoreWhitespace rest >>= (\(len, toks) -> return (len+2, toks)) 
+      ignoreWhitespace (NewLine:NewLine:rest         ) = ignoreWhitespace (NewLine:rest) >>= (\(len, toks) -> return (len+1, toks))
+      ignoreWhitespace (NewLine        :notWhitespace) = Right (1, notWhitespace)
+      ignoreWhitespace (Indent         :rest         ) = ignoreWhitespace rest >>= (\(len, toks) -> return (len+1, toks))
+      ignoreWhitespace []                              = Left $ "Internal Error?: "
+      ignoreWhitespace notWhitespace = Left $ "Error: Wrong Indentatation before \"" ++ showArray notWhitespace ++ "\""
   parseSemicolonLoop (Semicolon:Indent:toks) = parseSemicolon toks >>= (\(len, exp) -> return (len+1, Just exp))
   parseSemicolonLoop (Semicolon:toks) = parseSemicolon toks >>= (\(len, exp) -> return (len, Just exp))
   parseSemicolonLoop (_:toks) = Left $ "Error: Missing Semicolon before " ++ showArray toks
