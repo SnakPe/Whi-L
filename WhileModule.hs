@@ -209,8 +209,8 @@ instance Show WhileToken where
   show Semicolon = ";"
   show AssignmentOp = " := "
   show (Expression e) = show e ++ ""
-  show Indent = "\t"
-  show NewLine = "\n"
+  show Indent = "[->]\t"
+  show NewLine = "[new line]\n"
 
 instance Show ExpToken where
   show (VarExp name)         = showVar name  
@@ -508,18 +508,7 @@ parseProgram  w = parseSemicolon w >>= return.snd where
   parseSemicolonLoop :: Whileparser (Maybe While)
   parseSemicolonLoop []                       = Right (0,Nothing)
   parseSemicolonLoop (Semicolon:[])           = Left $ "Error: Found semicolon at the end of a (sub-)program"
-  parseSemicolonLoop (Semicolon:NewLine:toks) = do
-    (len, afterWhitespace) <- ignoreWhitespace (NewLine:toks)
-    (len, exp) <- parseSemicolon afterWhitespace
-    return (len+1, Just exp) where
-      -- skips over whitespace, but doesn't allow the next command to be wrongly indented
-      ignoreWhitespace :: Whileparser [WhileToken]
-      ignoreWhitespace (NewLine:Indent :rest         ) = ignoreWhitespace rest >>= (\(len, toks) -> return (len+2, toks)) 
-      ignoreWhitespace (NewLine:NewLine:rest         ) = ignoreWhitespace (NewLine:rest) >>= (\(len, toks) -> return (len+1, toks))
-      ignoreWhitespace (NewLine        :notWhitespace) = Right (1, notWhitespace)
-      ignoreWhitespace (Indent         :rest         ) = ignoreWhitespace rest >>= (\(len, toks) -> return (len+1, toks))
-      ignoreWhitespace []                              = Left $ "Internal Error?: "
-      ignoreWhitespace notWhitespace = Left $ "Error: Wrong Indentatation before \"" ++ showArray notWhitespace ++ "\""
+  parseSemicolonLoop (Semicolon:NewLine:toks) = parseSemicolon toks >>= (\(len, exp) -> return (len+1, Just exp))
   parseSemicolonLoop (Semicolon:Indent:toks) = parseSemicolon toks >>= (\(len, exp) -> return (len+1, Just exp))
   parseSemicolonLoop (Semicolon:toks) = parseSemicolon toks >>= (\(len, exp) -> return (len, Just exp))
   parseSemicolonLoop (_:toks) = Left $ "Error: Missing Semicolon before " ++ showArray toks
@@ -566,12 +555,12 @@ checkForTrailingEndOfProgram _ = (-1,False)
 --removes 1 Indent in every command
 splitSubprogram :: Whileparser [WhileToken]
 -- beginning of new command
-splitSubprogram (Semicolon:NewLine:       []  ) = Left "Error: (Sub-)Program ends with a semicolon" 
-splitSubprogram (Semicolon:               []  ) = Left "Error: (Sub-)Program ends with a semicolon"
-splitSubprogram (Semicolon:NewLine:Indent:rest) = splitSubprogram rest >>= (\(len, subprogram) -> return (len+3, Semicolon:NewLine:subprogram)) 
-splitSubprogram (Semicolon:        Indent:rest) = splitSubprogram rest >>= (\(len, subprogram) -> return (len+2, Semicolon:        subprogram))
-splitSubprogram (Semicolon:NewLine:       rest) = Right (0, []) -- the reason why 2 is used is becasue after a subprogram, we alos need to remove the "trailing" Semicolon and NewLine  
-splitSubprogram (Semicolon:               rest) = Right (0, []) -- the reason why 1 is used is becasue after a subprogram, we alos need to remove the "trailing" Semicolon 
+splitSubprogram (Semicolon:NewLine:       []          ) = Left "Error: (Sub-)Program ends with a semicolon" 
+splitSubprogram (Semicolon:               []          ) = Left "Error: (Sub-)Program ends with a semicolon"
+splitSubprogram (Semicolon:NewLine:Indent:rest        ) = splitSubprogram rest >>= (\(len, subprogram) -> return (len+3, Semicolon:NewLine:subprogram)) 
+splitSubprogram (Semicolon:        Indent:rest        ) = splitSubprogram rest >>= (\(len, subprogram) -> return (len+2, Semicolon:        subprogram))
+splitSubprogram (Semicolon:NewLine:       noIndent    ) = Right (0, []) -- the reason why 2 is used is becasue after a subprogram, we alos need to remove the "trailing" Semicolon and NewLine  
+splitSubprogram (Semicolon:               noWhitespace) = Right (0, []) -- the reason why 1 is used is becasue after a subprogram, we alos need to remove the "trailing" Semicolon 
 -- beginning of another subprogram
 splitSubprogram (        Do       :NewLine:Indent:Indent:rest) = splitSubprogram rest >>= (\(len, subprogram) -> return (len+4, Do       :NewLine:Indent:subprogram)) 
 splitSubprogram (        Then     :NewLine:Indent:Indent:rest) = splitSubprogram rest >>= (\(len, subprogram) -> return (len+4, Then     :NewLine:Indent:subprogram)) 
