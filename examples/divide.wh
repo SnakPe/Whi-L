@@ -1,0 +1,7 @@
+-- interger division type shit
+dividend := 5567866;
+divisor  :=     576;
+result   :=       0;
+while divisor < dividend | divisor = dividend do
+	dividend := dividend - divisor;
+	result   := result + 1
