@@ -31,7 +31,7 @@ The while language has the following grammar</br>
 $\left<\mathrm{INDENT}\right>$ A means that every new statement in A needs to have an added tab character</br>
 \n stands for a new line
 
-Program $\to$ Statement (; Statement)*
+Program $\to$ Statement (; Statement)*</br>
 IndentedProgram $\to$ $\left<\mathrm{INDENT}\right>$ Program 
 
 Statement $\to$ While | If | Ass | Skip </br>
