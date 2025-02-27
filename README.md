@@ -27,8 +27,8 @@ Whi-l --help
 
 Formal Grammar
 ---
-The while language has the following grammar
-$\left<\mathrm{INDENT}\right>$ A means that every new statement in A needs to have an added tab character  
+The while language has the following grammar</br>
+$\left<\mathrm{INDENT}\right>$ A means that every new statement in A needs to have an added tab character</br>
 \n stands for a new line
 
 Program $\to$ Statement (; Statement)*
