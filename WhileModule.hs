@@ -6,7 +6,7 @@ import Data.Char (isAlphaNum, isNumber, isAlpha, digitToInt)
 
 {- TYPES -}
 type Var = String
-data AExp = VarA Var | LitA Int | Plus AExp AExp | Minus AExp AExp -- deriving Show
+data AExp = VarA Var | LitA Integer | Plus AExp AExp | Minus AExp AExp -- deriving Show
 data BExp = VarB Var | LitB Bool | Neg BExp | And BExp BExp | Or BExp BExp | Bigger AExp AExp | Smaller AExp AExp | Equals AExp AExp --deriving Show
 
 data Exp = A AExp | B BExp | Var Var -- deriving Show -- One could also use this to avoid two ASSs, but meh
@@ -110,7 +110,7 @@ showIndentedProgram w indent = showIndent indent ++ showProgram w where
 
 {- SEMANTICS -}
 
-type Literal = Either Int Bool
+type Literal = Either Integer Bool
 type Assignment = (Var, Literal)
 type AllocationList = [Assignment]
 
@@ -120,7 +120,7 @@ interpretBinaryTemplate l op r interpreter allocations = do
   return (op n m)
 
 -- arithmetic semantics
-interpretArithmetic :: AExp -> AllocationList -> Either String Int
+interpretArithmetic :: AExp -> AllocationList -> Either String Integer
 interpretArithmetic (VarA a) ass = interpretGeneralExpression (Var a) ass >>= \val -> 
   case val of 
     Right bool -> Left $ "Error: Tried to use a variable with a boolean " ++ showVar a ++ " in a context where a number is needed. (" ++ showVar a ++ " is " ++ show bool ++ ")"
@@ -143,7 +143,7 @@ interpretBoolean (Bigger  l r) ass = interpretBinaryTemplate l (>) r interpretAr
 interpretBoolean (Smaller l r) ass = interpretBinaryTemplate l (<) r interpretArithmetic ass
 interpretBoolean (Equals  l r) ass = interpretBinaryTemplate l (==) r interpretArithmetic ass
 
-interpretGeneralExpression :: Exp -> AllocationList -> Either String (Either Int Bool)
+interpretGeneralExpression :: Exp -> AllocationList -> Either String (Either Integer Bool)
 interpretGeneralExpression      (Var name) []                    = Left $ "Error: Uninitialized variable " ++ name ++ " was used in an expression" 
 interpretGeneralExpression expr@(Var var1) ((var2, Left  a):ass) = if var1 == var2 then Right (Left  a) else interpretGeneralExpression expr ass
 interpretGeneralExpression expr@(Var var1) ((var2, Right b):ass) = if var1 == var2 then Right (Right b) else interpretGeneralExpression expr ass
@@ -196,7 +196,7 @@ rules (NEW w1 w2) ass = case w1 of
 {- PARSER -}
 
 data WhileToken = While | Do | If | Then | Else | Skip | Semicolon | AssignmentOp | Expression Exp | Indent | NewLine -- Varaibles are saved as in Expressions
-data ExpToken = VarExp Var | LitExp (Either Int Bool) | PlusOp | MinusOp | NegOp | AndOp | OrOp | BiggerRel | SmallerRel | EqualsRel | LeftBrackExp | RightBrackExp deriving (Eq)
+data ExpToken = VarExp Var | LitExp (Either Integer Bool) | PlusOp | MinusOp | NegOp | AndOp | OrOp | BiggerRel | SmallerRel | EqualsRel | LeftBrackExp | RightBrackExp deriving (Eq)
 
 instance Show WhileToken where
   show :: WhileToken -> String
@@ -252,7 +252,7 @@ lexerExpression (c:s)
   | c == '<'   = lexerExpression s >>= return.((:) SmallerRel)
   | c == '='   = lexerExpression s >>= return.((:) EqualsRel)
   | isAlpha c  = let (len, expr) = getAlphaExpToken (snd $ getText (c:s)) in lexerExpression (drop (len-1) s) >>= return.((:)expr)
-  | isNumber c = let (len, expr) = getText (c:s) in lexerExpression (drop (len-1) s) >>= return.((:) (LitExp (Left $ ((read expr) :: Int))))
+  | isNumber c = let (len, expr) = getText (c:s) in lexerExpression (drop (len-1) s) >>= return.((:) (LitExp (Left $ ((read expr) :: Integer))))
   | otherwise = Left $ "Error: Found illegal character " ++ [c]
   where
     getAlphaExpToken :: String -> (Int, ExpToken)

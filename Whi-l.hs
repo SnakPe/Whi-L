@@ -16,6 +16,7 @@ main = do
       putStrLn "If you want to execute a file instead, provide it's path as an argument to this executable"
       putStrLn ""
       repl []
+      putStrLn "Bye :)"
     -- FILE  
     1 -> do 
       let [arg1] = args
@@ -64,7 +65,7 @@ main = do
   repl :: AllocationList -> IO ()
   repl alloc = do
     done <- isEOF
-    if done then putStrLn "\nBye :)" else do
+    if done then return () else do
       code <- readProgram 
       interpretProgram code alloc
   readProgram :: IO String

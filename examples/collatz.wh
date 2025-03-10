@@ -1,0 +1,56 @@
+-- calculates the sequence of numbers when verifying the collatz conjecture for the number in x and stores it in result
+x := 16; 
+result := -1; 
+-- the sequence is being saved as a number, where each number is being seperated with a 00
+-- e.g: 4500690042000360 is [45,69,420,360]
+-- (btw, the encoding function from list to number is not injective, meaning that different lists can result in the same number)
+-- ([16,8,4] becomes 16008004, which can also be obtained with [16008,4], [16,8004] or [16008004])
+seq := x;
+while !x=1 do
+-- 1. check if x is even or not
+	evenCheck := x;
+	while evenCheck > 1 do
+		evenCheck := evenCheck-2;
+	isEven := evenCheck = 0;
+--2. calculate the next number in the sequence
+	xCopy   := x;
+	nextNum := 0;
+	if isEven then
+--  divide by 2
+		while !xCopy=0 do
+			 xCopy   := xCopy-2;
+			 nextNum := nextNum+1;
+		x := nextNum
+	else
+--  multiply by 3 and add 1
+		while !xCopy=0 do
+			 xCopy   := xCopy-1;
+			 nextNum := nextNum+3;
+		x := nextNum + 1;
+--3. add new number to sequence
+--  count necessary amount of new zeroes in the sequence 
+	zeroAmount := 2;
+	xCopy := x;
+	while xCopy > 0 do
+		zeroAmount := zeroAmount+1;
+		div10      := 0;
+		while xCopy > 9 do
+			div10 := div10+1; 
+			xCopy := xCopy - 10;
+		xCopy := div10;
+--  add zeroes to sequence 
+	while zeroAmount > 0 do
+		ten     := 10;
+		seqCopy := seq;
+		seq     := 0;
+		while ten>0 do 
+			seq := seq+seqCopy;
+			ten := ten-1;
+		zeroAmount := zeroAmount-1;
+	seq := seq + x;
+--
+--
+--
+result := seq;
+seq := 0;
+seqCopy := 0
