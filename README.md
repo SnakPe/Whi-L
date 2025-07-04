@@ -62,3 +62,8 @@ Inline comments can be made by using "--", for example
 x := 69 -- HAHA 69 so funny lol
 ```   
 
+Bugs/Weird Behaviour
+---
+ - If a line only contains a comment with some space before the `--`, that space is not allowed to contain tabs, because that would indicate the start of a subprogram.
+ - A semicolon is only placed if there is following statement in the same subprogramm. Noticably, the last statement cannot end in a semicolon, as well as the last statement in the first block `B1` of an `if ... then B1 else B2`.
+ - The minus operation is right associative, so e.g. 1-1-1 = 1-(1-1) = 1-0 = 1, and not -1 as one might expect. This can be seen as a feature or as a bug ig, but adds to the cursedness of this language implementation.
